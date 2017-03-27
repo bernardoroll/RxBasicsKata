@@ -3,13 +3,17 @@ package org.sergiiz.rxkata;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.FutureTask;
+import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
+import io.reactivex.Observer;
 import io.reactivex.Single;
+import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.functions.Predicate;
+import io.reactivex.schedulers.Schedulers;
 
 class CountriesServiceSolved implements CountriesService {
 
@@ -70,17 +74,27 @@ class CountriesServiceSolved implements CountriesService {
 
     @Override
     public Observable<Country> listPopulationMoreThanOneMillionWithTimeoutFallbackToEmpty(final FutureTask<List<Country>> countriesFromNetwork) {
-        return null; // put your solution here
+        return Observable.fromFuture(countriesFromNetwork, Schedulers.io())
+                .flatMapIterable(countries -> countries)
+                .filter(country -> country.getPopulation() > 1000000)
+                .timeout(1, TimeUnit.SECONDS, Observable.empty());
+
     }
 
     @Override
     public Observable<String> getCurrencyUsdIfNotFound(String countryName, List<Country> countries) {
-        return null; // put your solution here
+        return Observable.fromIterable(countries)
+                .filter(country -> country.getName().equals(countryName))
+                .map(Country::getCurrency)
+                .defaultIfEmpty("USD");
     }
 
     @Override
     public Observable<Long> sumPopulationOfCountries(List<Country> countries) {
-        return null; // put your solution here
+        return Observable.fromIterable(countries)
+                .map(Country::getPopulation)
+                .reduce((aLong, aLong2) -> aLong + aLong2)
+                .toObservable();
     }
 
     @Override
