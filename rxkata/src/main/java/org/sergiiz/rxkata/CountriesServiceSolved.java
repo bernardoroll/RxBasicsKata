@@ -42,20 +42,6 @@ class CountriesServiceSolved implements CountriesService {
     public Single<Boolean> isAllCountriesPopulationMoreThanOneMillion(List<Country> countries) {
         return Observable.fromIterable(countries)
                 .all(country -> country.getPopulation() > 1000000);
-//        return Observable.fromIterable(countries)
-//                .filter(new Predicate<Country>() {
-//                    @Override
-//                    public boolean test(Country country) throws Exception {
-//                        return country.getPopulation() > 1000000;
-//                    }
-//                })
-//                .count()
-//                .map(new Function<Long, Boolean>() {
-//                    @Override
-//                    public Boolean apply(Long aLong) throws Exception {
-//                        return aLong == countries.size();
-//                    }
-//                });
     }
 
     @Override
