@@ -10,6 +10,7 @@ import io.reactivex.ObservableSource;
 import io.reactivex.Observer;
 import io.reactivex.Single;
 import io.reactivex.functions.BiFunction;
+import io.reactivex.functions.BiPredicate;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.functions.Predicate;
@@ -20,7 +21,6 @@ class CountriesServiceSolved implements CountriesService {
     @Override
     public Single<String> countryNameInCapitals(Country country) {
         return Single.just(country.getName().toUpperCase());
-
     }
 
     public Single<Integer> countCountries(List<Country> countries) {
@@ -30,7 +30,6 @@ class CountriesServiceSolved implements CountriesService {
     public Observable<Long> listPopulationOfEachCountry(List<Country> countries) {
         return Observable.fromIterable(countries)
                 .map(Country::getPopulation);
-
     }
 
     @Override
@@ -78,7 +77,6 @@ class CountriesServiceSolved implements CountriesService {
                 .flatMapIterable(countries -> countries)
                 .filter(country -> country.getPopulation() > 1000000)
                 .timeout(1, TimeUnit.SECONDS, Observable.empty());
-
     }
 
     @Override
@@ -106,12 +104,15 @@ class CountriesServiceSolved implements CountriesService {
     @Override
     public Observable<Long> sumPopulationOfCountries(Observable<Country> countryObservable1,
                                                      Observable<Country> countryObservable2) {
-        return null; // put your solution here
+        return Observable.merge(countryObservable1, countryObservable2)
+                .map(Country::getPopulation)
+                .reduce((aLong, aLong2) -> aLong + aLong2)
+                .toObservable();
     }
 
     @Override
     public Single<Boolean> areEmittingSameSequences(Observable<Country> countryObservable1,
                                                     Observable<Country> countryObservable2) {
-        return null; // put your solution here
+        return Observable.sequenceEqual(countryObservable1, countryObservable2, Object::equals);
     }
 }
